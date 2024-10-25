@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Draw Mask for GAN Inpainting</h1>
+<div class="canvas-container">
+    <img id="sourceImage" src="{{ url_for('uploaded_file', filename=filename) }}" alt="Source Image" style="display:none;">
+    <div class="overlay-container">
+        <canvas id="canvas" width="512" height="512" style="border:1px solid #000000; position: absolute; z-index: 1;"></canvas>
+        <canvas id="maskCanvas" width="512" height="512" style="border:1px solid #000000; z-index: 0;"></canvas>
+    </div>
+    <br>
+    <label for="thickness">Brush Thickness:</label>
+    <input type="range" id="thickness" name="thickness" min="1" max="20" value="5">
+    <button id="submit">Submit Mask</button>
+    <div id="generatedImageContainer" style="display:none;">
+        <h2>Generated Image</h2>
+        <img id="generatedImage" src="" alt="Generated Image">
+    </div>
+</div>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<script>
+    const canvas = document.getElementById('canvas');
+    const maskCanvas = document.getElementById('maskCanvas');
+    const context = canvas.getContext('2d');
+    const maskContext = maskCanvas.getContext('2d');
+    const sourceImage = document.getElementById('sourceImage');
+    const thicknessSlider = document.getElementById('thickness');
+    let drawing = false;
+    let thickness = thicknessSlider.value;
+
+    sourceImage.onload = function() {
+        maskContext.drawImage(sourceImage, 0, 0, maskCanvas.width, maskCanvas.height);
+    }
+
+    thicknessSlider.addEventListener('input', () => {
+        thickness = thicknessSlider.value;
+    });
+
+    canvas.addEventListener('mousedown', () => drawing = true);
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mousemove', draw);
+
+    function draw(event) {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        context.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        context.beginPath();
+        context.arc(x, y, thickness, 0, Math.PI * 2);
+        context.fill();
+        maskContext.fillStyle = 'rgba(255, 255, 255, 1)';
+        maskContext.beginPath();
+        maskContext.arc(x, y, thickness, 0, Math.PI * 2);
+        maskContext.fill();
+    }
+
+    document.getElementById('submit').addEventListener('click', () => {
+        const socket = io();
+        const maskData = maskContext.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
+        const mask = new Uint8Array(maskCanvas.width * maskCanvas.height);
+        for (let i = 0; i < maskData.length; i += 4) {
+            mask[i / 4] = maskData[i] === 255 ? 1 : 0;
+        }
+        socket.emit('draw_mask', {filename: "{{ filename }}", mask: Array.from(mask)});
+        socket.on('inpaint_done', (data) => {
+            document.getElementById('generatedImage').src = data.generated_image_url;
+            document.getElementById('generatedImageContainer').style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+

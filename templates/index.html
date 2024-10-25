@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Microplastic Segmentation Project</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Optional: Include MathJax for rendering equations -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Smooth Scrolling and Custom Styles -->
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Custom Styles */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .hero {
+            position: relative;
+            height: 60vh;
+            overflow: hidden;
+            color: white;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+            background-size: cover;
+        }
+        .hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        .accordion-button:not(.collapsed) {
+            color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+        footer {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+        /* Responsive Image */
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+        }
+        /* Tooltip Styles */
+        [data-bs-toggle="tooltip"] {
+            cursor: pointer;
+        }
+        /* Equation Styling */
+        .MathJax {
+            text-align: center;
+            margin: 1em 0;
+        }
+        /* Author Chip Styles */
+        .chip {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.2rem;
+            font-size: 1rem;
+            background-color: #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        .chip:hover {
+            background-color: #d5d5d5;
+        }
+        .modal-header {
+            background-color: #0d6efd;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">Microplastic Analysis</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Navigation Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Segmenter Tool</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#paper">Paper</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#authors">Authors</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Segmenter -->
+   <!-- Hero Section with Segmenter -->
+    <div class="hero">
+        <!-- Background Video Container -->
+        <div class="video-container">
+            <video class="background-video" autoplay loop muted playsinline>
+                <source src="static/Plastic.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        
+        <button class="video-credit-btn btn btn-dark rounded-pill" data-bs-toggle="modal" data-bs-target="#videoCreditModal" style="position: absolute; bottom: 20px; left: 20px;">
+            Video Credits
+        </button>
+
+        <!-- Video Credit Modal -->
+        <div class="modal fade" id="videoCreditModal" tabindex="-1" aria-labelledby="videoCreditModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="videoCreditModalLabel">Video Credits</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        A film by Wonderfruit (<a href="https://www.wonderfruit.co" target="_blank">www.wonderfruit.co</a>) and nice monster (<a href="https://www.nicemonster.tv" target="_blank">www.nicemonster.tv</a>). Created with plastic waste collected from Bangkok, Thailand. © UN Environment Programme.
+                        <br><br>
+                        Watch the video on YouTube: <a href="https://www.youtube.com/watch?v=tNCnCEIfnkA" target="_blank">https://www.youtube.com/watch?v=tNCnCEIfnkA</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Include Bootstrap JS for Modal Functionality -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Hero Content -->
+        <div class="container hero-content">
+            <h1 class="display-4 fw-bold">Microplastic Segmentation Tool</h1>
+
+            <p class="lead">Automatically identify microplastics in your water sample images.</p>
+            <a href="segmenter" class="btn btn-lg btn-light mt-4 shadow-lg">Try it Out</a>
+        </div>
+    </div>
+
+    <!-- Main Content Section -->
+    <div class="container my-5" id="paper">
+        <!-- Project Title -->
+        <h2 class="text-center mb-5">Microplastic Identification Using AI-Driven Image Segmentation and GAN-Generated Ecological Context</h2>
+
+        <!-- Authors as clickable chips -->
+        <div class="authors text-center mb-5" id="authors">
+    <p><strong>Authors:</strong></p>
+        <div class="d-flex justify-content-center flex-wrap">
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#alexModal">Alex Dils</div>
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#davidModal">David Raymond</div>
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#jackModal">Jack Spottiswood</div>
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#samayModal">Samay Kodige</div>
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#dylanModal">Dylan Karmin</div>
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#rikhilModal">Rikhil Kokal</div>
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#cowgerModal">Dr. Win Cowger</div>
+            <div class="chip" data-bs-toggle="modal" data-bs-target="#sadeeModal">Chris Sadée</div>
+        </div>
+    </div>
+
+    <!-- Author Modals -->
+    <div class="modal fade" id="alexModal" tabindex="-1" aria-labelledby="alexModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alexModalLabel">Alex Dils</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Alex Dils is a senior at Sequoia High School, passionate about coding and AI research. Alex worked on training the segmentation model and contributed to the GAN development for this project.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:alexarthurdils@gmail.com">alexarthurdils@gmail.com</a></p>
+                    <p class="mt-3"><strong>ORCID:</strong> <a href="https://orcid.org/0009-0008-9203-4457">https://orcid.org/0009-0008-9203-4457</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="davidModal" tabindex="-1" aria-labelledby="davidModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="davidModalLabel">David Raymond</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    David Raymond is a high school student with a focus on AI technology. He helped manage the datasets and code repositories.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:davidraymond1081@gmail.com">davidraymond1081@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="jackModal" tabindex="-1" aria-labelledby="jackModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="jackModalLabel">Jack Spottiswood</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Jack Spottiswood is a student at Sequoia High School. He worked on data collection and outlining the project.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:813667@seq.org">813667@seq.org</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="samayModal" tabindex="-1" aria-labelledby="samayModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="samayModalLabel">Samay Kodige</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Samay Kodige is a senior at Sequoia High School. He was responsible for data collection and organization.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:samayk333@gmail.com">samayk333@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dylanModal" tabindex="-1" aria-labelledby="dylanModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dylanModalLabel">Dylan Karmin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Dylan Karmin is a high school student. He brainstormed the original project as well as task-managed other members.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:813518@seq.org">813518@seq.org</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rikhilModal" tabindex="-1" aria-labelledby="rikhilModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rikhilModalLabel">Rikhil Kokal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Rikhil Kokal is a student at Sequoia High School. He contributed to gathering of images and inspired the move to GAN-generated training data.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:rikhilkokal@gmail.com">rikhilkokal@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cowgerModal" tabindex="-1" aria-labelledby="cowgerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cowgerModalLabel">Dr. Win Cowger</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Dr. Win Cowger is a researcher at the University of California Riverside and the Moore Institute for Plastic Pollution Research. He provided guidance and helped evaluate the GAN-generated microplastic images. He is also the corresponding author.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:wcowg001@gmail.com">wcowg001@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="sadeeModal" tabindex="-1" aria-labelledby="sadeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sadeeModalLabel">Chris Sadée</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Chris Sadée is a researcher at the Stanford University's Center Biomedical Informatics Research. They offered computing resources, advice on methods, and comments on the final manuscript.
+                    <p class="mt-3"><strong>Email:</strong> <a href="mailto:sadee@stanford.edu">sadee@stanford.edu</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Links Buttons with Logos -->
+        <!-- External Links Buttons with Logos -->
+        <!-- External Links Buttons with Logos -->
+    <div class="text-center mt-5">
+            <!-- GitHub Button -->
+            <a href="https://github.com/axel-slid/Microplastic-Segmentation-GAN/tree/main" class="btn btn-lg me-2 shadow-sm github-btn mb-3" target="_blank">
+                <img src="static/github_logo_2.png" alt="GitHub" class="btn-logo">
+                GitHub Repository
+            </a>
+
+            <!-- arXiv Button (Coming Soon) -->
+            <button class="btn btn-lg me-2 shadow-sm arxiv-btn mb-3" disabled>
+                <img src="static/arxiv_logo.png" alt="arXiv" class="btn-logo">
+                arXiv (Coming Soon)
+            </button>
+
+            <!-- Dataverse Button -->
+            <a href="https://dataverse.harvard.edu/dataverse/Microplastic-Segmentation-GAN/" class="btn btn-lg me-2 shadow-sm dataverse-btn mb-3" target="_blank">
+                <img src="static/dataverse_logo_2.png" alt="Dataverse" class="btn-logo">
+                Data Download
+            </a>
+
+            <!-- PDF Paper Button -->
+            <a href="https://www.overleaf.com/read/qjjvwcfbttgc#011935" class="btn btn-lg shadow-sm pdf-btn mb-3" target="_blank">
+                <img src="static/simple_logo_3.png" alt="PDF Paper" class="btn-logo">
+                Read The Most Recent Paper
+            </a>
+        </div>
+
+        <!-- Custom Styles for Buttons -->
+        <style>
+            /* General Button Styles */
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 12px 24px;
+                transition: all 0.3s ease;
+                font-weight: bold;
+                color: #fff;
+                gap: 10px;
+                text-decoration: none;
+                border-radius: 50px;
+                border: none;
+            }
+
+            .btn-logo {
+                width: 28px;
+                height: 28px;
+            }
+
+            /* GitHub Button */
+            .github-btn {
+                background: linear-gradient(45deg, #24292f, #444d56);
+            }
+
+            .github-btn:hover {
+                background: linear-gradient(45deg, #444d56, #24292f);
+                box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            /* arXiv Button */
+            .arxiv-btn {
+                background: linear-gradient(45deg, #b31b1b, #e74c3c);
+                cursor: not-allowed;
+            }
+
+            .arxiv-btn:hover {
+                background: linear-gradient(45deg, #e74c3c, #b31b1b);
+            }
+
+            /* Dataverse Button (Orange) */
+            .dataverse-btn {
+                background: linear-gradient(45deg, #d99365, #de7a00);
+            }
+
+            .dataverse-btn:hover {
+                background: linear-gradient(45deg, #bd9b71, #c7590f);
+                box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            /* PDF Paper Button */
+            .pdf-btn {
+                background: linear-gradient(45deg, #aecea1, #42865c);
+            }
+
+            .pdf-btn:hover {
+                background: linear-gradient(45deg, #a3c698, #5da570);
+                box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            /* Add spacing below each button */
+            .mb-3 {
+                margin-bottom: 16px; /* Adjust the value as needed */
+            }
+
+            /* Responsive Fix for Mobile */
+            @media (max-width: 768px) {
+                .btn {
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+            }
+        </style>
+
+
+
+        <!-- Paper Content with Collapsible Sections -->
+        <div class="accordion" id="paperAccordion">
+            <!-- Abstract -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingAbstract">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAbstract" aria-expanded="true" aria-controls="collapseAbstract">
+                        Abstract
+                    </button>
+                </h2>
+                <div id="collapseAbstract" class="accordion-collapse collapse show" aria-labelledby="headingAbstract" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <p class="text-justify">
+                            Current methods for microplastic identification in water samples are costly and require expert analysis. Here, we propose a deep learning segmentation model to automatically identify microplastics in microscopic images. We labeled images of microplastic from the Moore Institute for Plastic Pollution Research and employ a Generative Adversarial Network (GAN) to supplement and generate diverse training data. To verify the validity of the generated data, we conducted a reader study where an expert was able to discern the generated microplastic from real microplastic at a rate of 68%. Our segmentation model trained on the combined data achieved an F1-Score of 0.91 on a diverse dataset, compared to the model without generated data's 0.82. With our findings we aim to enhance the ability of both experts and citizens to detect microplastic across diverse ecological contexts, thereby improving the cost and accessibility of microplastic analysis.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingIntroduction">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIntroduction" aria-expanded="false" aria-controls="collapseIntroduction">
+                        Introduction
+                    </button>
+                </h2>
+                <div id="collapseIntroduction" class="accordion-collapse collapse" aria-labelledby="headingIntroduction" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Introduction Content -->
+                        <p class="text-justify">
+                            Microplastic pollution poses a significant threat to the health of marine ecosystems and safe drinking water [1]. Therefore, the ability to quickly, cheaply, and accurately analyze samples becomes an invaluable tool for scientists and public health officials worldwide. Large-scale microplastic analysis is currently hindered by a lack of cheap and accessible measuring equipment [2]. Microplastic analysis requires long laboratory-intensive physical and chemical pretreatments to prepare the sample. This workup often entails a combination of manual analysis and Fourier-Transform Infrared Spectrophotometers to measure microplastic material type and confidently identify microplastics [3]. Manual particle picking using visual microscopy is error-prone due to some natural particles looking similar to microplastics and vice versa. The automated approach is limited by other pollutants that may interact with light in a similar way to microplastic [4]. Both are limited by their cost, which restricts access to only well-funded research institutions or organizations. To gain a more comprehensive and widespread understanding of microplastic pollution in different environments, it's critical to provide an accurate but accessible method of measuring it.
+                        </p>
+                        <p class="text-justify">
+                            Deep learning segmentation models have shown immense potential in accurately identifying and quantifying various elements within images while being relatively inexpensive compared to traditional methods. For example, in radiology, segmentation models are used to identify tumors in CT scan images with high precision [5]. Here, we propose a deep learning segmentation model for microplastic detection that offers a cost-effective, efficient, and scalable solution for analyzing microplastics [6]. With an effective segmentation model, scientists can process vast datasets of images from various sources, automatically identifying and quantifying microplastics.
+                        </p>
+                        <p class="text-justify">
+                            Deep learning models such as the one we propose require diverse training data. Unfortunately, many existing microscopic images of microplastic fit for computer vision models are isolated—focusing solely on the microplastic in the image while all other pollutants are removed during pretreatment. Due to this, there’s a lack of training data on microplastics in diverse ecological scenarios, e.g., dirty samples or raw imagery of plastic in the environment [7]. Therefore, the presence of other particles present in diverse ecological environments may pose an issue for a segmentation model optimized largely on isolated microplastic samples. To combat this lack of data from ecological environments, we propose an inpainting generative adversarial network (GAN) to introduce artificial training data of microplastic in images of diverse ecological environments to train our segmentation model [8].
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Collection -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingDataCollection">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataCollection" aria-expanded="false" aria-controls="collapseDataCollection">
+                        Data Collection
+                    </button>
+                </h2>
+                <div id="collapseDataCollection" class="accordion-collapse collapse" aria-labelledby="headingDataCollection" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Data Collection Content -->
+                        <p class="text-justify">
+                            We collected three distinct datasets for model development:
+                        </p>
+                        <p>
+                            <strong>Cohort 1</strong>: 368 microscopic images cleaned from pollutants other than microplastics from the "Microplastic Image Explorer" dataset provided by the Moore Institute for Plastic Pollution Research [9]. These images were used for training the GAN.
+                        </p>
+                        <p>
+                            <strong>Cohort 2</strong>: 733 microscopic images from unlicensed sources for public use depicting various ecological scenarios. These images do not contain microplastic and, hence, were processed through the trained GAN to generate the diverse training data.
+                        </p>
+                        <p>
+                            <strong>Cohort 3</strong>: 102 images from unlicensed public sources showing microplastics in different ecological contexts, used for evaluating the segmentation models.
+                        </p>
+                        <p class="text-justify">
+                            For cohorts 1 and 3, we manually segmented the microplastics in each image, creating binary masks where white regions represent microplastics and black regions represent non-microplastic areas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Training -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingModelTraining">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseModelTraining" aria-expanded="false" aria-controls="collapseModelTraining">
+                        Model Training
+                    </button>
+                </h2>
+                <div id="collapseModelTraining" class="accordion-collapse collapse" aria-labelledby="headingModelTraining" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Content -->
+                        <p class="text-justify">
+                            In this section, we describe the training processes for the GAN model modified to inpaint microplastic and the segmentation model. Our approach integrates the inpainting model to augment the dataset with realistic synthetic images of microplastics in various ecological environments.
+                        </p>
+
+                        <!-- Subsections -->
+                        <h5>Inpainting GAN</h5>
+                        <p class="text-justify">
+                            To generate microplastic in images using an inpainting GAN, we employed a preexisting GAN architecture consisting of a generator \( G \) and a discriminator \( D \) working in an adversarial manner [10]. The generator \( G \) learns to inpaint masked regions in the input images, while the discriminator \( D \) learns to distinguish between real images and the images generated by \( G \).
+                        </p>
+                        <p class="text-justify">
+                            For our purposes in generating microplastic, we changed the output of the model to only include the masked region after the decoder in the generator. The binary mask guides the generator by indicating which parts of the image should be inpainted (white regions) and which parts should remain unchanged (black regions), thereby mitigating the artifacts and inconsistencies that are well-documented as limitations with the use of GANs [11].
+                        </p>
+                        <p class="text-justify">
+                            The unmasked regions remain unaltered by combining masked and original images as follows:
+                        </p>
+                        <p class="text-center">
+                            \[
+                            \text{output} = G(\text{image}, \text{mask}) \cdot \text{mask} + \text{image} \cdot (1 - \text{mask})
+                            \]
+                        </p>
+                        <p class="text-justify">
+                            Here, the term \( G(\text{image}, \text{mask}) \cdot \text{mask} \) ensures that only the masked areas are inpainted, while the term \( \text{image} \cdot (1 - \text{mask}) \) preserves the unmasked regions of the original image.
+                        </p>
+                        <p class="text-justify">
+                            The model was trained on the images and masks from Cohort 1 using an NVIDIA GeForce RTX 4060, following the same training procedures as the original preexisting version.
+                        </p>
+                        <p class="text-justify">
+                            After training the inpainting GAN model, it was applied to generate realistic synthetic images of microplastic within various ecological contexts using the images from Cohort 2. During this application, we randomly selected a mask from Cohort 1 to act as the guiding mask. The guiding mask was then randomly transformed in several ways: it was shifted vertically and horizontally, moved up and down, and rotated between 0 and 360 degrees. This transformation process seeks to add more diverse training data.
+                        </p>
+
+                        <!-- Include Figure -->
+                        <div class="text-center my-4">
+                            <img src="static/output.png" alt="Comparison of original images, guiding masks, and GAN-generated images" class="img-fluid rounded shadow-sm">
+                            <p class="mt-2"><strong>Figure 1:</strong> Comparison of original images, guiding masks, and GAN-generated images. The guiding masks indicate regions for inpainting, resulting in generated images that integrate microplastic representations within the original image context.</p>
+                        </div>
+
+                        <h5>Segmentation</h5>
+                        <p class="text-justify">
+                            We trained two segmentation models. The first trained exclusively on Cohort 1, and the second trained on Cohort 1 with the additional images generated by applying the inpainting GAN to Cohort 2. Both were trained using an NVIDIA GeForce RTX 4060.
+                        </p>
+                        <p class="text-justify">
+                            To develop the segmentation models, we used a preexisting U-Net architecture with an InceptionV3 backbone [12]. The datasets were split into training, validation, and test sets, with an 80/10/10 split. The models were trained on the train set, and the parameters and data augmentation were kept constant from the preexisting implementation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiments -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingExperiments">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExperiments" aria-expanded="false" aria-controls="collapseExperiments">
+                        Experiments
+                    </button>
+                </h2>
+                <div id="collapseExperiments" class="accordion-collapse collapse" aria-labelledby="headingExperiments" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Subsections -->
+                        <h5>Inpainting GAN Performance</h5>
+                        <p class="text-justify">
+                            To evaluate the ability of the inpainting GAN model to generate realistic synthetic images of microplastic in diverse environments, we developed a reader study. In this study, Coauthor Dr. Cowger (an expert in microplastic analysis) was blinded to the model outputs and was asked to distinguish between real and GAN-generated images of microplastic.
+                        </p>
+                        <p class="text-justify">
+                            The study involved a randomized set of 200 images: 100 real microscopic images of microplastics taken from Cohort 3 and 100 generated by the inpainting GAN from Cohort 2. The participant was presented with these images and asked to classify each one as either real or generated. The results of the reader study indicated that GAN-generated images were correctly identified with only 68% accuracy. This relatively low discernment rate suggests that the GAN-generated images were highly realistic and closely resembled the true images of microplastics.
+                        </p>
+
+                        <h5>Segmentation Performance</h5>
+                        <p class="text-justify">
+                            To evaluate the performance of the segmentation model, we measured the F1-score and Dice score for each model on Cohort 3 and the separate test set from Cohort 1. The F1-score provides a balance between precision and recall, whereas the Dice score is a measure of overlap between the predicted and true segmentation. These metrics were chosen to provide a comprehensive evaluation of the models' performance.
+                        </p>
+
+                        <!-- Include Interactive Graph -->
+                        <div class="my-4">
+                            <h5>Interactive Segmentation Performance Graph</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="F1-Score" id="metricF1" checked>
+                                        <label class="form-check-label" for="metricF1">
+                                            F1-Score
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="Dice Score" id="metricDice" checked>
+                                        <label class="form-check-label" for="metricDice">
+                                            Dice Score
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="datasetSelect" class="form-label">Select Dataset:</label>
+                                    <select class="form-select" id="datasetSelect">
+                                        <option value="cohort3" selected>Cohort 3</option>
+                                        <option value="cohort1">Cohort 1 Test Set</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Canvas for Chart -->
+                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        </div>
+
+                        <!-- Table remains for reference -->
+                        <div class="table-responsive my-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Model</th>
+                                        <th>Training Dataset</th>
+                                        <th>F1-Score (Cohort 3)</th>
+                                        <th>Dice Score (Cohort 3)</th>
+                                        <th>F1-Score (Cohort 1 Test Set)</th>
+                                        <th>Dice Score (Cohort 1 Test Set)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Cohort 1</td>
+                                        <td>0.82</td>
+                                        <td>0.83</td>
+                                        <td>0.80</td>
+                                        <td>0.81</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Cohort 1 + Inpainted Cohort 2</td>
+                                        <td><strong>0.91</strong></td>
+                                        <td><strong>0.92</strong></td>
+                                        <td><strong>0.88</strong></td>
+                                        <td><strong>0.89</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p class="text-center"><strong>Table 1:</strong> Performance Comparison of Segmentation Models</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingImplementation">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseImplementation" aria-expanded="false" aria-controls="collapseImplementation">
+                        Implementation
+                    </button>
+                </h2>
+                <div id="collapseImplementation" class="accordion-collapse collapse" aria-labelledby="headingImplementation" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Content -->
+                        <p class="text-justify">
+                            To make our segmentation models accessible for practical use, we developed a web-based application. The application is built using Flask for the backend to handle model inference and web requests, and a simple frontend created with HTML and CSS for user interaction [13]. The link to our website is as follows: <a href="https://exotic-profound-satyr.ngrok-free.app" target="_blank">https://exotic-profound-satyr.ngrok-free.app</a>.
+                        </p>
+                        <p class="text-justify">
+                            Users can upload images of water samples through the web interface, which are then processed by our deep learning models to identify and segment microplastics. The segmentation results are displayed back to the user in real-time.
+                        </p>
+                        <p class="text-justify">
+                            This implementation allows researchers and citizens to leverage advanced AI models without needing specialized hardware or software, thereby democratizing access to high-quality microplastic analysis tools.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Limitations -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingLimitations">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLimitations" aria-expanded="false" aria-controls="collapseLimitations">
+                        Limitations
+                    </button>
+                </h2>
+                <div id="collapseLimitations" class="accordion-collapse collapse" aria-labelledby="headingLimitations" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Content -->
+                        <p class="text-justify">
+                            There are several limitations to consider with our results. First, the GAN-generated images, although realistic, may not capture the full variability and complexity of real-world ecological scenarios. The reader study indicates a 68% discernment rate, suggesting room for improvement in the GAN's ability to replicate microplastic features accurately. Additionally, our dataset, despite being diverse, may not encompass all possible environmental contexts where microplastics occur. This could limit the generalizability of our model to new, unseen ecological environments. Lastly, the implementation of our web-based application, while aimed at democratizing access to microplastic analysis, relies on stable internet connections and may face challenges in areas with limited technological infrastructure.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conclusion and Discussion -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingConclusion">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConclusion" aria-expanded="false" aria-controls="collapseConclusion">
+                        Conclusion and Discussion
+                    </button>
+                </h2>
+                <div id="collapseConclusion" class="accordion-collapse collapse" aria-labelledby="headingConclusion" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Content -->
+                        <p class="text-justify">
+                            This paper offers a novel approach to the identification of microplastics through the use of deep-learning segmentation models augmented with synthetic images generated by an inpainting GAN. The results demonstrate that the inclusion of GAN-generated images significantly improves the model’s performance, as evidenced by higher F1 scores and Dice scores on both the external test set (Cohort 3) and the test set from Cohort 1.
+                        </p>
+                        <p class="text-justify">
+                            In conclusion, the integration of GAN-generated images into the training process represents a significant advancement in how microplastics can be identified in a more cheap and accessible manner. This methodology not only improves model performance but also opens up new avenues for research and application, ultimately contributing to more effective and widespread environmental monitoring and protection. This enhanced capability can facilitate more efficient and cost-effective monitoring of microplastic pollution, contributing to environmental protection efforts and public health initiatives.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acknowledgments -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingAcknowledgments">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAcknowledgments" aria-expanded="false" aria-controls="collapseAcknowledgments">
+                        Acknowledgments
+                    </button>
+                </h2>
+                <div id="collapseAcknowledgments" class="accordion-collapse collapse" aria-labelledby="headingAcknowledgments" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- Content -->
+                        <p class="text-justify">
+                            We gratefully acknowledge Chris Yves Sadèe for providing invaluable access to computing resources, which significantly contributed to the progress of our research. Their thoughtful comments and advice were crucial in refining and enhancing the quality of our work. We deeply appreciate their support and guidance throughout this project. Additionally, we thank the Moore Institute for Plastic Pollution Research for their dataset of microplastic images, which was instrumental to our model training. Finally, we thank all members of the Coding Club at Sequoia High School for their support and advice during the project.
+                        </p>
+                        <p class="text-justify">
+                            The code and data used in this study are publicly available. The code for the deep learning segmentation model and the inpainting GAN can be found on GitHub: <a href="https://github.com/axel-slid/Microplastic-Segmentation-GAN/tree/main" target="_blank">https://github.com/axel-slid/Microplastic-Segmentation-GAN/tree/main</a>. The datasets used for training and evaluation are available at: <a href="https://dataverse.harvard.edu/dataverse/Microplastic-Segmentation-GAN/" target="_blank">https://dataverse.harvard.edu/dataverse/Microplastic-Segmentation-GAN/</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- References -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingReferences">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReferences" aria-expanded="false" aria-controls="collapseReferences">
+                        References
+                    </button>
+                </h2>
+                <div id="collapseReferences" class="accordion-collapse collapse" aria-labelledby="headingReferences" data-bs-parent="#paperAccordion">
+                    <div class="accordion-body">
+                        <!-- References List -->
+                        <ol class="references">
+                            <li>Ziani, Khaled et al. (2023) Microplastics: A Real Global Threat for Environment and Food Safety: A State of the Art Review. <em>Nutrients</em> <strong>15</strong>(3):617. doi:10.3390/nu15030617.</li>
+                            <li>Stock, F. et al. (2020) Pitfalls and Limitations in Microplastic Analyses. <em>Plastics in the Aquatic Environment - Part I. The Handbook of Environmental Chemistry</em>, vol 111. Springer, Cham. doi:10.1007/698_2020_654.</li>
+                            <li>Primpke, S., Christiansen, S.H., Cowger, W., et al. (2020) Critical Assessment of Analytical Methods for the Harmonized and Cost-Efficient Analysis of Microplastics. <em>Applied Spectroscopy</em> <strong>74</strong>(9):1012-1047. doi:10.1177/0003702820921465.</li>
+                            <li>Levine, S.P., Li-Shi, Y., Strang, C.R., &amp; Hong-Kui, X. (1989) Advantages and Disadvantages in the Use of Fourier Transform Infrared (FTIR) and Filter Infrared (FIR) Spectrometers for Monitoring Airborne Gases and Vapors of Industrial Hygiene Concern. <em>Applied Industrial Hygiene</em> <strong>4</strong>(7):180-187. doi:10.1080/08828032.1989.10390419.</li>
+                            <li>Sabir, M.W., et al. (2022) Segmentation of liver tumor in CT scan using ResU-Net. <em>Applied Sciences</em> <strong>12</strong>(17):8650. doi:10.3390/app12178650.</li>
+                            <li>Iakubovskii, P. (2019) Segmentation Models. <em>GitHub repository</em>. Available at: <a href="https://github.com/qubvel/segmentation_models" target="_blank">https://github.com/qubvel/segmentation_models</a>.</li>
+                            <li>Li, Changchao et al. (2021) "Microplastic communities" in different environments: Differences, links, and role of diversity index in source analysis. <em>Water Research</em> <strong>188</strong>:116574. doi:10.1016/j.watres.2020.116574.</li>
+                            <li>Zeng, Y., Fu, J., Chao, H., &amp; Guo, B. (2021) Aggregated Contextual Transformations for High-Resolution Image Inpainting. <em>arXiv preprint arXiv:2104.01431</em>. doi:10.48550/arXiv.2104.01431.</li>
+                            <li>Sherrod, H., et al. (2023) One4All: An Open Source Portal to Validate and Share Microplastics Data and Beyond. <em>GitHub repository</em>. Available at: <a href="https://github.com/Moore-Institute-4-Plastic-Pollution-Res/One4All" target="_blank">https://github.com/Moore-Institute-4-Plastic-Pollution-Res/One4All</a>.</li>
+                            <li>Liu, Ming-Yu and Tuzel, Oncel. (2016) Coupled Generative Adversarial Networks. <em>arXiv preprint arXiv:1606.07536</em>. doi:10.48550/arXiv.1606.07536.</li>
+                            <li>Zhang, Xu, Svebor Karaman, and Shih-Fu Chang. "Detecting and simulating artifacts in GAN fake images." 2019 IEEE International Workshop on Information Forensics and Security (WIFS). IEEE, 2019.</li>
+                            <li>Iakubovskii, P. (2019) Segmentation Models. <em>GitHub repository</em>. Available at: <a href="https://github.com/qubvel/segmentation_models" target="_blank">https://github.com/qubvel/segmentation_models</a>.</li>
+                            <li>Grinberg, Miguel. (2018) Flask web development: developing web applications with python. <em>O'Reilly Media, Inc.</em></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <!-- <div class="text-center mt-5">
+            <a href="segmenter.html" class="btn btn-primary btn-lg me-2 shadow-sm">Try the Segmenter Tool</a>
+            <a href="https://github.com/axel-slid/Microplastic-Segmentation-GAN/tree/main" class="btn btn-outline-primary btn-lg me-2 shadow-sm" target="_blank">GitHub Repository</a>
+            <a href="https://dataverse.harvard.edu/dataverse/Microplastic-Segmentation-GAN/" class="btn btn-outline-secondary btn-lg shadow-sm" target="_blank">Data Download</a>
+        </div> -->
+    </div>
+
+    <!-- "Who We Are" Section -->
+    <div class="container-fluid bg-light py-5">
+        <div class="container">
+            <h2 class="text-center text-primary mb-4">Who We Are</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center">
+                    <img src="static/club.jpg" alt="Coding Club" class="img-fluid rounded shadow-sm mb-4">
+                </div>
+            </div>
+            <p class="text-center fs-5">
+                We are a group of students from Sequoia High School passionate about coding and technology. Our team collaborated to develop this AI-driven tool to contribute to environmental conservation efforts.
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center py-3">
+        &copy; 2024 Sequoia High School Coding Club
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Activate Tooltips (if any) -->
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+    <!-- Chart.js Script for Interactive Graph -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('performanceChart').getContext('2d');
+
+            // Data for the models
+            var data = {
+                labels: ['Model 1', 'Model 2'],
+                datasets: []
+            };
+
+            // Performance data for each cohort
+            var cohort3Data = {
+                f1Scores: [0.82, 0.91],
+                diceScores: [0.83, 0.92]
+            };
+
+            var cohort1Data = {
+                f1Scores: [0.80, 0.88],
+                diceScores: [0.81, 0.89]
+            };
+
+            // Initialize the chart
+            var performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // Function to update the chart based on user selection
+            function updateChart() {
+                var selectedDataset = document.getElementById('datasetSelect').value;
+                var showF1 = document.getElementById('metricF1').checked;
+                var showDice = document.getElementById('metricDice').checked;
+
+                data.datasets = [];
+
+                var currentData = selectedDataset === 'cohort3' ? cohort3Data : cohort1Data;
+
+                if (showF1) {
+                    data.datasets.push({
+                        label: 'F1-Score',
+                        data: currentData.f1Scores,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                    });
+                }
+
+                if (showDice) {
+                    data.datasets.push({
+                        label: 'Dice Score',
+                        data: currentData.diceScores,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                    });
+                }
+
+                performanceChart.update();
+            }
+
+            // Event listeners for interactive controls
+            document.getElementById('metricF1').addEventListener('change', updateChart);
+            document.getElementById('metricDice').addEventListener('change', updateChart);
+            document.getElementById('datasetSelect').addEventListener('change', updateChart);
+
+            // Initial chart update
+            updateChart();
+        });
+    </script>
+</body>
+</html>
+
+
+
+

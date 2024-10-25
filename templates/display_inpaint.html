@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Original and Inpainted Images</h1>
+<div class="image-container">
+    <div>
+        <h2>Original Image</h2>
+        <img src="{{ original_image_url }}" alt="Original Image" class="image">
+    </div>
+    <div>
+        <h2>Inpainted Image</h2>
+        <img src="{{ generated_image_url }}" alt="Inpainted Image" class="image">
+    </div>
+</div>
+{% endblock %}
+
+

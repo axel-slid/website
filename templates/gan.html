@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-lg p-3 mb-5 bg-white rounded">
+    <div class="card-body">
+        <h1 class="card-title">Upload an Image for GAN Inpainting</h1>
+        <div class="instructions">
+            <h2>Instructions</h2>
+            <p>1. Click the "Choose File" button to select an image from your device.</p>
+            <p>2. Click the "Upload" button to upload the image and start drawing the mask.</p>
+            <p>3. Draw the mask on the image to inpaint, and the GAN will generate the inpainted image.</p>
+        </div>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.file.label(class="form-label") }}
+                {{ form.file(class="form-control-file") }}
+            </div>
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+
